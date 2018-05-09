@@ -24,7 +24,7 @@ byte const CODE[] = {
 size_t const POS = 2;
 
 /*
- * Simple runtime function, thant multiplies given number to constant in memory
+ * Simple runtime function, thant multiplies given number to constant unsigned char in memory
  * Type "exec x" to execute function with "x"
  * Type "change y" to change stored constant to "y"
  * Type "exit" to exit
