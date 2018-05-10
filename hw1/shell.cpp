@@ -36,7 +36,7 @@ vector<string> string_args(string const& s) {
 char** raw_args(vector<string>& args) {
     size_t cnt = args.size();
     auto res = new char* [cnt + 1];
-    res[cnt] = 0;
+    res[cnt] = nullptr;
     for (size_t i = 0; i < cnt; ++i) {
         res[i] = const_cast<char*>(args[i].data());
     }
@@ -46,20 +46,19 @@ char** raw_args(vector<string>& args) {
 void execute(char* args[], char* envp[]) {
     pid_t pid = fork();
     if (pid == 0) {
-        int res = execve(args[0], args, envp);
-        if (res == -1) {
-            cerr << "Execution failed" << endl;
-            exit(res);
+        if (execve(args[0], args, envp) == -1) {
+            perror("Execution failed");
+            exit(-1);
         }
     } else if (pid > 0) {
         int status;
         if (waitpid(pid, &status, 0) == -1) {
-            cerr << "Error occurred during execution" << endl;
+            perror("Error occurred during execution");
         } else {
             cout << "Program returned with code: " << WEXITSTATUS(status) << endl;
         }
     } else {
-        cerr << "Fork failed" << endl;
+        perror("Fork failed");
     }
 }
 
