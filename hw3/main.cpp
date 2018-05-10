@@ -35,7 +35,7 @@ int main() {
     try {
         f_ptr = make_unique<runtime_function>(code);
     } catch (bad_alloc const& e) {
-        cerr << "Unable to allocate memory" << endl;
+        perror("Unable to allocate memory");
         return 1;
     }
 
@@ -59,7 +59,7 @@ int main() {
                 cout << "Unknown command" << endl;
             }
         } catch (runtime_error const& e) {
-            cerr << e.what() << endl;
+            perror(e.what());
             return 1;
         }
     }
@@ -67,7 +67,7 @@ int main() {
     try {
         f_ptr.reset();
     } catch (bad_alloc const& e) {
-        cerr << "Unable to free memory" << endl;
+        perror("Unable to free memory");
         return 1;
     }
     return 0;

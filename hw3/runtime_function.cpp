@@ -1,26 +1,18 @@
 #include "runtime_function.h"
 
-bool runtime_function::change_priv(int n_priv) {
+void runtime_function::change_priv(int n_priv) {
     if (priv == n_priv) {
-        return 1;
+        return;
     }
     if (mprotect(data, size, n_priv) == -1) {
-        return 0;
-    } else {
-        priv = n_priv;
-        return 1;
-    }
-}
-
-void runtime_function::try_change_priv(int n_priv) {
-    if (!change_priv(n_priv)) {
         throw std::runtime_error("Can't change privileges");
     }
+    priv = n_priv;
 }
 
 void runtime_function::set_byte(size_t pos, byte one) {
     assert(pos < size);
-    try_change_priv(PROT_WRITE | PROT_READ);
+    change_priv(PROT_WRITE | PROT_READ);
     static_cast<byte*>(data)[pos] = one;
 }
 

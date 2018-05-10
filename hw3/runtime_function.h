@@ -18,7 +18,7 @@ struct runtime_function {
 
     template<typename R, typename ...Args>
     R execute(Args&& ...args) {
-        try_change_priv(PROT_EXEC | PROT_READ);
+        change_priv(PROT_EXEC | PROT_READ);
         auto func = reinterpret_cast<R(*)(std::decay_t<Args>...)>(data);
         return func(std::forward<Args>(args)...);
     };
@@ -30,9 +30,7 @@ private:
     size_t size;
     int priv;
 
-    bool change_priv(int n_priv);
-
-    void try_change_priv(int n_priv);
+    void change_priv(int n_priv);
 };
 
 #endif //HW3_RUNTIME_FUNCTION_H
