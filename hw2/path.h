@@ -8,8 +8,6 @@
 #include <vector>
 #include <string>
 
-char const SEP = '/';
-
 struct path {
     path() = default;
     path add_to_path(std::string s) const;
@@ -22,6 +20,7 @@ struct path {
 
     path resolve(path const& other) const;
 private:
+    static constexpr char SEP = '/';
     std::vector<std::string> fragments;
 
     explicit path(std::vector<std::string> const& frags);

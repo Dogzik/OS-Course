@@ -38,4 +38,5 @@ path::operator string() const {
 path path::resolve(path const &other) const {
     path res(*this);
     res.fragments.insert(res.fragments.end(), other.fragments.begin(), other.fragments.end());
+    return res;
 }
