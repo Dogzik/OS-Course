@@ -26,6 +26,6 @@ runtime_function::runtime_function(std::vector<byte> const& code): size(code.siz
 
 runtime_function::~runtime_function() {
     if (munmap(data, size) == -1) {
-        throw std::bad_alloc();
+        perror("Unable to free memory");
     }
 }

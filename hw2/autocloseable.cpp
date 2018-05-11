@@ -35,7 +35,9 @@ ssize_t autocloseable_file::read_data(void* buf, size_t count) {
 
 autocloseable_file::~autocloseable_file() {
     if (fd >= 0) {
-        close(fd);
+        if (close(fd) == -1) {
+            perror("Can't close file descriptor");
+        }
     }
 }
 
@@ -63,6 +65,8 @@ dirent* autocloseable_dir::next_entry() {
 
 autocloseable_dir::~autocloseable_dir() {
     if (dir != nullptr) {
-        closedir(dir);
+        if (closedir(dir) == -1) {
+            perror("Can't close directory");
+        }
     }
 }

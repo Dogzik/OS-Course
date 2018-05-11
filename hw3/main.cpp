@@ -63,12 +63,5 @@ int main() {
             return 1;
         }
     }
-
-    try {
-        f_ptr.reset();
-    } catch (bad_alloc const& e) {
-        perror("Unable to free memory");
-        return 1;
-    }
     return 0;
 }
