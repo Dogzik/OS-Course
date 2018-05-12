@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <new>
-#include <cstring>
 #include <cassert>
 #include <stdexcept>
 #include <type_traits>
@@ -12,6 +11,7 @@
 using byte = unsigned char;
 
 struct runtime_function {
+
     explicit runtime_function(std::vector<byte> const& code);
 
     void set_byte(size_t pos, byte one);

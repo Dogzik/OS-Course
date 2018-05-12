@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include "runtime_function.h"
+#include "utils.h"
 
 using std::vector;
 using std::cin;
@@ -35,7 +36,7 @@ int main() {
     try {
         f_ptr = make_unique<runtime_function>(code);
     } catch (bad_alloc const& e) {
-        perror("Unable to allocate memory");
+        print_error("Unable to allocate memory");
         return 1;
     }
 
@@ -59,7 +60,7 @@ int main() {
                 cout << "Unknown command" << endl;
             }
         } catch (runtime_error const& e) {
-            perror(e.what());
+            print_error(e.what());
             return 1;
         }
     }

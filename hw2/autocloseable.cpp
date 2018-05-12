@@ -1,4 +1,5 @@
 #include "autocloseable.h"
+#include "utils.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -11,7 +12,7 @@ autocloseable_file::autocloseable_file() noexcept : fd(-1) {}
 
 autocloseable_file::autocloseable_file(std::string const &f_path, int flags): fd(open(f_path.c_str(), flags)) {
     if (fd == -1) {
-        throw runtime_error("Can't open file: " + f_path + "\n");
+        throw runtime_error("Can't open file: " + f_path);
     }
 }
 
@@ -28,7 +29,7 @@ autocloseable_file& autocloseable_file::operator=(autocloseable_file &&other) no
 ssize_t autocloseable_file::read_data(void* buf, size_t count) {
     ssize_t res = read(fd, buf, count);
     if (res == -1) {
-        throw runtime_error("Error occurred during reading file\n");
+        throw runtime_error("Error occurred during reading file");
     }
     return res;
 }
@@ -36,7 +37,7 @@ ssize_t autocloseable_file::read_data(void* buf, size_t count) {
 autocloseable_file::~autocloseable_file() {
     if (fd >= 0) {
         if (close(fd) == -1) {
-            perror("Can't close file descriptor");
+            print_error("Can't close file descriptor");
         }
     }
 }
@@ -45,7 +46,7 @@ autocloseable_dir::autocloseable_dir() noexcept : dir(nullptr) {}
 
 autocloseable_dir::autocloseable_dir(std::string const &d_path) : dir(opendir(d_path.c_str())) {
     if (dir == nullptr) {
-        throw runtime_error("Can't open directory: " + d_path + "\n");
+        throw runtime_error("Can't open directory: " + d_path);
     }
 }
 
@@ -66,7 +67,7 @@ dirent* autocloseable_dir::next_entry() {
 autocloseable_dir::~autocloseable_dir() {
     if (dir != nullptr) {
         if (closedir(dir) == -1) {
-            perror("Can't close directory");
+            print_error("Can't close directory");
         }
     }
 }

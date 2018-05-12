@@ -1,4 +1,6 @@
+#include <cstring>
 #include "runtime_function.h"
+#include "utils.h"
 
 void runtime_function::change_priv(int n_priv) {
     if (priv == n_priv) {
@@ -26,6 +28,6 @@ runtime_function::runtime_function(std::vector<byte> const& code): size(code.siz
 
 runtime_function::~runtime_function() {
     if (munmap(data, size) == -1) {
-        perror("Unable to free memory");
+        print_error("Unable to free memory");
     }
 }

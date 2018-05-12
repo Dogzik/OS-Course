@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <cstring>
 
 using std::string;
 using std::istringstream;
@@ -21,6 +23,10 @@ using std::cerr;
 void greet() {
     cout << "~$ ";
     cout.flush();
+}
+
+void print_error(string const& msg) {
+    cerr << msg << endl << strerror(errno) << endl;
 }
 
 vector<string> string_args(string const& s) {
@@ -47,18 +53,18 @@ void execute(char* args[], char* envp[]) {
     pid_t pid = fork();
     if (pid == 0) {
         if (execve(args[0], args, envp) == -1) {
-            perror("Execution failed");
+            print_error("Execution failed");
             exit(-1);
         }
     } else if (pid > 0) {
         int status;
         if (waitpid(pid, &status, 0) == -1) {
-            perror("Error occurred during execution");
+            print_error("Error occurred during execution");
         } else {
             cout << "Program returned with code: " << WEXITSTATUS(status) << endl;
         }
     } else {
-        perror("Fork failed");
+        print_error("Fork failed");
     }
 }
 

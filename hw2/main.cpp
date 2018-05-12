@@ -8,6 +8,7 @@
 #include "stream_finder.h"
 #include "path.h"
 #include "autocloseable.h"
+#include "utils.h"
 
 using std::cin;
 using std::cout;
@@ -35,7 +36,7 @@ struct my_stat {
 my_stat get_stat(string const &path) {
     struct stat tmp;
     if (stat(path.c_str(), &tmp) == -1) {
-        throw runtime_error("Can't get stat for path: " + path + "\n");
+        throw runtime_error("Can't get stat for path: " + path);
     }
     return my_stat(tmp);
 }
@@ -43,7 +44,7 @@ my_stat get_stat(string const &path) {
 path get_cur_dir() {
     char *raw_dir = get_current_dir_name();
     if (raw_dir == nullptr) {
-        throw runtime_error("Can't get current directory\n");
+        throw runtime_error("Can't get current directory");
     }
     return path().add_to_path(raw_dir);
 }
@@ -61,7 +62,7 @@ bool check_file(path const &f_path, stream_finder &finder, size_t buff_size) {
         }
         return 0;
     } catch (runtime_error const &e) {
-        perror(e.what());
+        print_error(e.what());
         return 0;
     }
 }
@@ -84,7 +85,7 @@ vector<string> grep_search(path const &start, string const &pattern) {
         try {
             cur_dir = autocloseable_dir(start.resolve(cur_path));
         } catch (runtime_error const &e) {
-            perror(e.what());
+            print_error(e.what());
             continue;
         }
 
@@ -99,7 +100,7 @@ vector<string> grep_search(path const &start, string const &pattern) {
             try {
                 next_stats = get_stat(start.resolve(next_path));
             } catch (runtime_error const &e) {
-                perror(e.what());
+                print_error(e.what());
                 continue;
             }
 
@@ -143,7 +144,7 @@ int main(int argc, char *argv[]) {
     try {
         start_path = get_cur_dir();
     } catch (runtime_error const &e) {
-        perror(e.what());
+        print_error(e.what());
         return 1;
     }
     auto res = grep_search(start_path, argv[1]);
