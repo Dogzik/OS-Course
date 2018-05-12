@@ -1,0 +1,4 @@
+cd static
+make
+cd ..
+
