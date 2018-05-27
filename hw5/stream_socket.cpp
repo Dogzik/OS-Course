@@ -46,7 +46,7 @@ void stream_socket::bind(in_port_t port) {
     }
 }
 
-void stream_socket::listen(int max_connections = 1000) {
+void stream_socket::listen(int max_connections) {
     if (::listen(fd, max_connections) == -1) {
         throw runtime_error(error_msg("Can't set socket to passive state"));
     }
