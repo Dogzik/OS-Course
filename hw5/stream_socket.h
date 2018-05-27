@@ -19,6 +19,9 @@ struct stream_socket {
     stream_socket(stream_socket const&) = delete;
     stream_socket(stream_socket&& other) noexcept;
 
+    stream_socket& operator=(stream_socket const&) = delete;
+    stream_socket& operator=(stream_socket&& other) noexcept;
+
     size_t receive(void *buff, size_t len);
     std::string read_string();
     void send_string(std::string const& s);

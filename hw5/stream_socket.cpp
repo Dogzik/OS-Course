@@ -112,3 +112,9 @@ string stream_socket::read_string() {
     return string(buff);
 }
 
+stream_socket &stream_socket::operator=(stream_socket &&other) noexcept {
+    fd = other.fd;
+    other.fd = -1;
+    return *this;
+}
+
