@@ -30,12 +30,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     uint32_t ip = ntohl(reinterpret_cast<struct in_addr*>(hp->h_addr_list[0])->s_addr);
-    uint16_t port;
+    in_port_t port;
 
     try {
-        port = static_cast<uint16_t>(std::stoi(argv[2]));
+        port = static_cast<in_port_t >(std::stoi(argv[2]));
     } catch (...) {
-        cerr << "Incorrect porn argument" << endl;
+        cerr << "Incorrect port argument" << endl;
         return 1;
     }
 
@@ -59,8 +59,7 @@ int main(int argc, char *argv[]) {
                 iss >> s;
                 server.send_string("stat " + s + "\r\n");
                 querry_accumulator acc;
-                s = read_until_end(acc, server);
-                cout << s << endl;
+                cout << read_until_end(acc, server) << endl;
             } else if (type == "get") {
                 string from, to;
                 querry_accumulator acc;
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
                     char buff[stream_socket::BUFF_SIZE];
                     size_t cur = 0;
                     while (sz > 0) {
-                        cur = server.receive(static_cast<void *>(buff), stream_socket::BUFF_SIZE);
+                        cur = server.receive(static_cast<void*>(buff), stream_socket::BUFF_SIZE);
                         out.write(buff, cur);
                         sz -= cur;
                     }

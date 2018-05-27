@@ -28,8 +28,8 @@ struct stream_socket {
     void send_file(int file, off_t len);
 
     //server
-    void bind(uint16_t port);
-    void listen();
+    void bind(in_port_t port);
+    void listen(int max_connections = 1000);
     stream_socket accept();
 
     //client
@@ -38,7 +38,6 @@ struct stream_socket {
     ~stream_socket();
 private:
     int fd;
-
 
     explicit stream_socket(int _fd);
 };

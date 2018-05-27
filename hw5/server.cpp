@@ -29,7 +29,7 @@ string get_file_stat(string const& name) {
     if (!S_ISREG(data.st_mode)) {
         return "Not a regular file";
     }
-    return "File size is: " + to_string(data.st_size) + " bytes";
+    return "File size is: " + to_string(data.st_size) + " byte(s)";
 
 }
 
@@ -46,7 +46,7 @@ bool process(string& querry, stream_socket& sock, querry_accumulator& acc) {
             sock.send_string("ERR\r\n");
             return 0;
         }
-        sock.send_string("OK " + std::to_string(static_cast<uint64_t>(data.st_size)) + "\r\n");
+        sock.send_string("OK " + std::to_string(data.st_size) + "\r\n");
         type = read_until_end(acc, sock);
         if (type == "yes") {
             int fd = ::open(name.c_str(), O_RDONLY);
@@ -67,28 +67,27 @@ bool process(string& querry, stream_socket& sock, querry_accumulator& acc) {
     }
 }
 
-
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         cerr << "1 argument expected: <porn>" << endl;
         return 1;
     }
-    uint16_t port;
+    in_port_t port;
     try {
-        port = static_cast<uint16_t>(std::stoi(argv[1]));
+        port = static_cast<in_port_t>(std::stoi(argv[1]));
     } catch (...) {
-        cerr << "Incorrect porn argument" << endl;
+        cerr << "Incorrect port argument" << endl;
         return 1;
     }
     try {
         stream_socket listener;
         listener.bind(port);
         listener.listen();
-        while (true) {
+        while (1) {
             stream_socket client = listener.accept();
             client.send_string("Successfully connected\r\n");
             querry_accumulator acc;
-            bool stop = false;
+            bool stop = 0;
             while (!stop) {
                 string querry = read_until_end(acc, client);
                 if (querry.empty()) {
@@ -100,6 +99,7 @@ int main(int argc, char* argv[]) {
         }
     } catch (std::runtime_error const& e) {
         std::cerr << e.what() << std::endl;
+        return 1;
     }
     return 0;
 }

@@ -21,7 +21,7 @@ void querry_accumulator::add_data(string const &new_data) {
 string querry_accumulator::next_querry() {
     size_t end_ind = data.find("\r\n");
     if (end_ind == string::npos) {
-        return "";
+        return string();
     }
     string res = data.substr(0, end_ind);
     data = data.substr(end_ind + 2);

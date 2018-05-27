@@ -2,14 +2,14 @@
 // Created by dogzik on 25.05.18.
 //
 
-#include "stream_socket.h"
-#include "utils.h"
 #include <sys/socket.h>
 #include <sys/sendfile.h>
 #include <netinet/in.h>
 #include <stdexcept>
 #include <unistd.h>
 #include <iostream>
+#include "stream_socket.h"
+#include "utils.h"
 
 using std::runtime_error;
 using std::cerr;
@@ -36,7 +36,7 @@ stream_socket::~stream_socket() {
     }
 }
 
-void stream_socket::bind(uint16_t port) {
+void stream_socket::bind(in_port_t port) {
     struct sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
@@ -46,15 +46,15 @@ void stream_socket::bind(uint16_t port) {
     }
 }
 
-void stream_socket::listen() {
-    if (::listen(fd, 1000) == -1) {
+void stream_socket::listen(int max_connections = 1000) {
+    if (::listen(fd, max_connections) == -1) {
         throw runtime_error(error_msg("Can't set socket to passive state"));
     }
 }
 
 stream_socket stream_socket::accept() {
     int new_fd = ::accept(fd, nullptr, nullptr);
-    if (fd == -1) {
+    if (new_fd == -1) {
         throw runtime_error(error_msg("Can't accept new connection"));
     }
     return stream_socket(new_fd);
