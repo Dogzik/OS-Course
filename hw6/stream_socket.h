@@ -26,13 +26,15 @@ struct stream_socket {
     std::string read_string();
     std::string send_string(std::string const& s);
 
+    void make_nonblock();
+
     //server
     void bind(in_port_t port);
     void listen(int max_connections = 1000);
     stream_socket accept();
 
     //client
-    void connect(uint32_t ip, in_port_t port);
+    int connect(uint32_t ip, in_port_t port);
 
     int get_fd();
 
@@ -41,7 +43,7 @@ struct stream_socket {
     friend void add_to_map(std::unordered_map<int, stream_socket>& socks, stream_socket&& sock);
 private:
     int fd;
-
+    int flags;
     explicit stream_socket(int _fd);
 };
 

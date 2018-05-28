@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <utility>
+#include <fcntl.h>
 #include "stream_socket.h"
 #include "utils.h"
 
@@ -20,6 +21,10 @@ using std::string;
 stream_socket::stream_socket(): fd(socket(AF_INET, SOCK_STREAM, 0)) {
     if (fd == -1) {
         throw runtime_error(error_msg("Can't create socket"));
+    }
+    flags = ::fcntl(fd, F_GETFD);
+    if (flags == -1) {
+        throw std::runtime_error(error_msg("Can't get socket status"));
     }
 }
 
@@ -67,14 +72,19 @@ stream_socket stream_socket::accept() {
     return stream_socket(new_fd);
 }
 
-void stream_socket::connect(uint32_t ip, in_port_t port) {
+int stream_socket::connect(uint32_t ip, in_port_t port) {
     struct sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
     address.sin_addr.s_addr = htonl(ip);
     if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == -1) {
-        throw runtime_error(error_msg("Can't connect to server"));
+        if (flags & SOCK_NONBLOCK) {
+            return -1;
+        } else {
+            throw runtime_error(error_msg("Can't connect to server"));
+        }
     }
+    return 0;
 }
 
 string stream_socket::send_string(string const& s) {
@@ -102,4 +112,13 @@ void add_to_map(std::unordered_map<int, stream_socket>& socks, stream_socket&& s
 
 int stream_socket::get_fd() {
     return fd;
+}
+
+void stream_socket::make_nonblock() {
+    if (!(flags & SOCK_NONBLOCK)) {
+        if (::fcntl(fd, F_SETFD, flags | SOCK_NONBLOCK) == -1) {
+            throw std::runtime_error(error_msg("Can't change socket status"));
+        }
+        flags |= SOCK_NONBLOCK;
+    }
 }

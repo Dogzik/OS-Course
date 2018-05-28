@@ -4,9 +4,11 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <unordered_map>
 #include <netdb.h>
 #include <sys/epoll.h>
+#include <errno.h>
 #include <memory>
 #include <unistd.h>
 #include "utils.h"
@@ -64,10 +66,21 @@ int main(int argc, char* argv[]) {
 
     try {
         stream_socket server;
+        server.make_nonblock();
         add_to_epoll(epoll_fd, STDIN_FILENO, EPOLLIN);
-        add_to_epoll(epoll_fd, server.get_fd(), EPOLLOUT);
-        bool connected = 0;
+        bool connected = 1;
         bool stop = 0;
+
+        if (server.connect(ip, port) == -1) {
+            if (errno == EINPROGRESS) {
+                add_to_epoll(epoll_fd, server.get_fd(), EPOLLIN | EPOLLOUT);
+                connected = 0;
+            } else {
+                throw std::runtime_error(error_msg("Connection failed"));
+            }
+        } else {
+            add_to_epoll(epoll_fd, server.get_fd(), EPOLLIN);
+        }
 
         querry_accumulator received_data;
         string data_to_print;
@@ -104,7 +117,15 @@ int main(int argc, char* argv[]) {
                     }
                     if (events & EPOLLOUT) {
                         if (!connected) {
-                            server.connect(ip, port);
+                            int err = 0;
+                            socklen_t len = sizeof(int);
+
+                            if (::getsockopt(server.get_fd(), SOL_SOCKET, SO_ERROR, &err, &len) == -1) {
+                                throw std::runtime_error(error_msg("Can't get socket errors status"));
+                            }
+                            if (err != 0) {
+                                throw std::runtime_error(string("Connection failed:\n") + strerror(err));
+                            }
                             connected = 1;
                             change_epoll_mod(epoll_fd, fd, EPOLLIN | (data_to_send.empty() ? 0 : EPOLLOUT));
                         } else {
