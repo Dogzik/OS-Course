@@ -22,7 +22,7 @@ stream_socket::stream_socket(): fd(socket(AF_INET, SOCK_STREAM, 0)) {
     if (fd == -1) {
         throw runtime_error(error_msg("Can't create socket"));
     }
-    flags = ::fcntl(fd, F_GETFD);
+    flags = ::fcntl(fd, F_GETFL);
     if (flags == -1) {
         throw std::runtime_error(error_msg("Can't get socket status"));
     }
@@ -115,10 +115,10 @@ int stream_socket::get_fd() {
 }
 
 void stream_socket::make_nonblock() {
-    if (!(flags & SOCK_NONBLOCK)) {
-        if (::fcntl(fd, F_SETFD, flags | SOCK_NONBLOCK) == -1) {
+    if (!(flags & O_NONBLOCK)) {
+        if (::fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
             throw std::runtime_error(error_msg("Can't change socket status"));
         }
-        flags |= SOCK_NONBLOCK;
+        flags |= O_NONBLOCK;
     }
 }
